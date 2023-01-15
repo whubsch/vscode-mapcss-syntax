@@ -1,0 +1,43 @@
+meta {
+    title: "Parking lanes";   /* title shown in the menu */
+    icon: "logo_16x16x8.png"; /* small icon shown in the menu next to the title */
+    version: "1.2";           /* the version of the style */
+    description: "...";       /* one or two sentences of describing the style */
+    author: "...";            /* the author(s) of the style */
+    link: "https://...";      /* URL to the web page of the style */
+    min-josm-version: 6789;   /* the minimum JOSM version where this style works */
+}
+
+/**
+*/
+canvas {
+    fill-color: #ffffea; /* the former background-color is deprecated since r7110 */
+    default-points: false;
+    default-lines: false;
+}
+
+// applied to ways with a tag highway=primary
+way[highway=primary]     /* Matches against all ways with the highway tag set to primary */
+way[highway=~/.*ary/]    /* Matches against all ways with a highway that matches the regex ".*ary" */
+{ /*  the styles */ }
+
+node[highway="~/.*ary/"], /* Matches against all nodes with the highway tag set to"~/.*ary/" (not a regex) */
+node[highway='a"b'],      /* Matches against all nodes with the highway tag set to 'a"b' */
+node[highway="a\"b"]     /* Matches against all node with the highway tag set to 'a"b' */
+{
+   opacity: 0.5;
+   color: rgb(1.0, 0.0, 0.0);
+}
+
+/*
+*/
+*[highway]       /* Matches against all every element with the highway tag set */
+*[!highway]      /* Matches against all every element with the highway tag not set (or set to no/false) */
+*.highway        /* Matches against all every element with the highway class set */
+
+way|z11-14[amenity=parking][capacity<5]:closed:new::layer_1 {}
+area[amenity=parking][access=customers], area[amenity=parking][!access] { }
+relation[type=route][route=foot] > way::relation_underlay {}
+
+@import url("osmtags.css") osmtags;
+

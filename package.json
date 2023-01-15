@@ -1,0 +1,25 @@
+{
+  "name": "mapcss",
+  "displayName": "MapCSS",
+  "description": "Syntax highlighting for MapCSS",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "mapcss",
+      "aliases": ["MapCSS", "mapcss"],
+      "extensions": [".mapcss"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "mapcss",
+      "scopeName": "source.mapcss",
+      "path": "./syntaxes/mapcss.tmLanguage.json"
+    }]
+  }
+}

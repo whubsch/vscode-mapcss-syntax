@@ -1,0 +1,270 @@
+{
+	"information_for_contributors": [
+		"Please refer to: https://wiki.openstreetmap.org/wiki/MapCSS/0.2",
+		"and https://josm.openstreetmap.de/wiki/Help/Styles/MapCSSImplementation",
+		"Based on https://github.com/microsoft/vscode/blob/main/extensions/scss/syntaxes/scss.tmLanguage.json",
+		"and https://github.com/Microsoft/vscode/blob/main/extensions/css/syntaxes/css.tmLanguage.json"
+	],
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "MapCSS",
+	"patterns": [
+		{
+			"include": "#at_rule_import"
+		},
+		{
+			"include": "#selectors"
+		},
+		{
+			"include": "#comment_block"
+		},
+		{
+			"include": "#comment_line"
+		}
+	],
+	"repository": {
+		"tag_wildcard": {
+			"match": "\\*",
+			"name": "entity.name.tag.wildcard.mapcss"
+		},
+		"tag_types": {
+			"match": "\\b(node|way|relation|area|line|canvas)\\b",
+			"name": "entity.name.tag.types.mapcss"
+		},
+		"pseudo-classes": {
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.entity.mapcss"
+				}
+			},
+			"match": "(:*)(?:active|hover)",
+			"name": "entity.other.attribute-name.pseudo-class.mapcss"
+		},
+		"josm-pseudo-classes": {
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.entity.mapcss"
+				}
+			},
+			"match": "(:*)(?:closed|closed2|completely_downloaded|new|connection|unconnected|tagged|area-style|righthandtraffic|clockwise|anticlockwise|unclosed_multipolygon|open_end|in-downloaded-area|selected|highlighted|modified)",
+			"name": "entity.other.attribute-name.pseudo-class.mapcss"
+		},
+		"selector_gut": {
+			"patterns": [
+				{
+					"include": "#comment-block"
+				},
+				{
+					"include": "#commas"
+				},
+				{
+					"begin": "\\[",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.entity.begin.bracket.square.mapcss"
+						}
+					},
+					"end": "\\]",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.entity.end.bracket.square.mapcss"
+						}
+					},
+					"name": "meta.attribute-selector.mapcss",
+					"patterns": [
+						{
+							"include": "#comment-block"
+						},
+						{
+							"include": "#string"
+						}
+					]
+				},
+				{
+					"include": "#pseudo-classes"
+				},
+				{
+					"include": "#josm-pseudo-classes"
+				}
+			]
+		},
+		"selectors": {
+			"patterns": [
+				{
+					"include": "#tag_types"
+				},
+				{
+					"include": "#tag_wildcard"
+				},
+				{
+					"include": "#selector_gut"
+				}
+			]
+		},
+		"comparison_operators": {
+			"match": "=|!=|<=|>=|<|>|=~|~=",
+			"name": "keyword.operator.comparison.mapcss"
+		},
+		"commas": {
+			"match": ",",
+			"name": "punctuation.separator.list.comma.mapcss"
+		},
+		"comment_block": {
+			"begin": "/\\*",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.comment.mapcss"
+				}
+			},
+			"end": "\\*/",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.comment.mapcss"
+				}
+			},
+			"name": "comment.block.mapcss"
+		},
+		"comment_line": {
+			"begin": "//",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.comment.mapcss"
+				}
+			},
+			"end": "\\n",
+			"name": "comment.line.mapcss"
+		},
+		"at_rule_import": {
+			"begin": "\\s*((@)import\\b)\\s*",
+			"captures": {
+				"1": {
+					"name": "keyword.control.at-rule.import.mapcss"
+				},
+				"2": {
+					"name": "punctuation.definition.keyword.mapcss"
+				}
+			},
+			"end": "\\s*((?=;)|(?=}))",
+			"name": "meta.at-rule.import.mapcss",
+			"patterns": [
+				{
+					"include": "#url"
+				},
+				{
+					"include": "#comment_line"
+				}
+			]
+		},
+		"escapes": {
+			"patterns": [
+				{
+					"match": "\\\\[0-9a-fA-F]{1,6}",
+					"name": "constant.character.escape.codepoint.mapcss"
+				},
+				{
+					"begin": "\\\\$\\s*",
+					"end": "^(?<!\\G)",
+					"name": "constant.character.escape.newline.mapcss"
+				},
+				{
+					"match": "\\\\.",
+					"name": "constant.character.escape.mapcss"
+				}
+			]
+		},
+		"string": {
+			"patterns": [
+				{
+					"begin": "\"",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.string.begin.mapcss"
+						}
+					},
+					"end": "\"|(?<!\\\\)(?=$|\\n)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.string.end.mapcss"
+						}
+					},
+					"name": "string.quoted.double.mapcss",
+					"patterns": [
+						{
+							"begin": "(?:\\G|^)(?=(?:[^\\\\\"]|\\\\.)+$)",
+							"end": "$",
+							"name": "invalid.illegal.unclosed.string.mapcss",
+							"patterns": [
+								{
+									"include": "#escapes"
+								}
+							]
+						},
+						{
+							"include": "#escapes"
+						}
+					]
+				},
+				{
+					"begin": "'",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.string.begin.mapcss"
+						}
+					},
+					"end": "'|(?<!\\\\)(?=$|\\n)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.string.end.mapcss"
+						}
+					},
+					"name": "string.quoted.single.mapcss",
+					"patterns": [
+						{
+							"begin": "(?:\\G|^)(?=(?:[^\\\\']|\\\\.)+$)",
+							"end": "$",
+							"name": "invalid.illegal.unclosed.string.mapcss",
+							"patterns": [
+								{
+									"include": "#escapes"
+								}
+							]
+						},
+						{
+							"include": "#escapes"
+						}
+					]
+				}
+			]
+		},
+		"url": {
+			"begin": "(?i)(?<![\\w@-])(url)(\\()",
+			"beginCaptures": {
+				"1": {
+					"name": "support.function.url.mapcss"
+				},
+				"2": {
+					"name": "punctuation.section.function.begin.bracket.round.mapcss"
+				}
+			},
+			"end": "\\)",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.section.function.end.bracket.round.mapcss"
+				}
+			},
+			"name": "meta.function.url.mapcss",
+			"patterns": [
+				{
+					"match": "[^'\")\\s]+",
+					"name": "variable.parameter.url.mapcss"
+				},
+				{
+					"include": "#string"
+				},
+				{
+					"include": "#comment-block"
+				}
+			]
+		}
+	},
+	"scopeName": "source.mapcss"
+}
