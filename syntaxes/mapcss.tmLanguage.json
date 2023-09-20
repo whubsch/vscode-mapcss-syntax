@@ -112,7 +112,7 @@
 					"name": "punctuation.definition.entity.mapcss"
 				}
 			},
-			"match": "::([a-z_]+)",
+			"match": "::([a-z0-9_]+)",
 			"name": "entity.other.attribute-name.layer-name.mapcss"
 		},
 		"selector_gut": {
