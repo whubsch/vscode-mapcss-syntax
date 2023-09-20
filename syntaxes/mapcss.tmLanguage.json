@@ -61,7 +61,7 @@
 			}
 		},
 		"expressions": {
-			"match": "\\b(cond|list|get|split|prop|prop|is_prop_set|tag|parent_tag|parent_tags|has_tag_key|rgb|hsb_color|red|alpha|length|count|length|any|concat|join|join_list|upper|lower|title|trim|trim_list|JOSM_search|tr|regexp_test|regexp_test|regexp_match|regexp_match|substring|substring|replace|osm_id|osm_user_name|osm_user_id|osm_version|osm_changeset_id|osm_timestamp|parent_osm_id|URL_encode|URL_decode|XML_encode|CRC32_checksum|is_right_hand_traffic|number_of_tags|print|println|JOSM_pref|setting|degree_to_radians|cardinal_to_radians|waylength|areasize|at|is_similar|gpx_distance|count_roles|sort|sort_list|tag_regex|to_boolean|to_byte|to_short|to_int|to_long|to_float|to_double|uniq|uniq_list|parent_way_angle|convert_primitive_to_string|convert_primitives_to_string|parent_osm_primitives)\\b\\(",
+			"match": "\\b(cond|list|get|split|prop|is_prop_set|tag(?:_regex)?|parent_tags?|has_tag_key|rgb|hsb_color|red|alpha|length|count(?:_roles)?|length|any|concat|(?:join|trim|uniq|sort)(?:_list)?|upper|lower|title|JOSM_(?:search|pref)|tr|regexp_(?:test|match)|substring|replace|osm_id|osm_user_name|osm_user_id|osm_version|osm_changeset_id|osm_timestamp|parent_osm_id|URL_(?:encode|decode)|XML_encode|CRC32_checksum|is_right_hand_traffic|number_of_tags|print(?:ln)?|setting|degree_to_radians|cardinal_to_radians|waylength|areasize|at|is_similar|gpx_distance|to_(?:boolean|byte|short|int|long|float|double)|parent_way_angle|convert_primitives?_to_string|parent_osm_primitives)\\b\\(",
 			"captures": {
 				"1": {
 					"name": "entity.name.function.mapcss"
