@@ -19,16 +19,74 @@
 		},
 		{
 			"include": "#comment_line"
+		},
+		{
+			"include": "#selector_placeholder"
+		},
+		{
+			"include": "#expressions"
+		},
+		{
+			"include": "#validator_props"
+		},
+		{
+			"include": "#props"
+		},
+		{
+			"include": "#validator_functions"
+		},
+		{
+			"include": "#hex_colors"
 		}
 	],
 	"repository": {
 		"tag_wildcard": {
-			"match": "\\*",
-			"name": "entity.name.tag.wildcard.mapcss"
+			"match": "(\\*)",
+			"captures": {
+				"1": {
+					"name": "entity.name.tag.wildcard.mapcss"
+				}
+			}
 		},
 		"tag_types": {
 			"match": "\\b(node|way|relation|area|line|canvas)\\b",
 			"name": "entity.name.tag.types.mapcss"
+		},
+		"validator_functions": {
+			"match": "\\b(group|throwError|throwWarning|throwOther|fixAdd|fixRemove|fixChangeKey|fixDeleteObject|suggestAlternative|assertMatch|assertNoMatch):",
+			"captures": {
+				"1": {
+					"name": "support.function.mapcss"
+				}
+			}
+		},
+		"expressions": {
+			"match": "\\b(cond|list|get|split|prop|prop|is_prop_set|tag|parent_tag|parent_tags|has_tag_key|rgb|hsb_color|red|alpha|length|count|length|any|concat|join|join_list|upper|lower|title|trim|trim_list|JOSM_search|tr|regexp_test|regexp_test|regexp_match|regexp_match|substring|substring|replace|osm_id|osm_user_name|osm_user_id|osm_version|osm_changeset_id|osm_timestamp|parent_osm_id|URL_encode|URL_decode|XML_encode|CRC32_checksum|is_right_hand_traffic|number_of_tags|print|println|JOSM_pref|setting|degree_to_radians|cardinal_to_radians|waylength|areasize|at|is_similar|gpx_distance|count_roles|sort|sort_list|tag_regex|to_boolean|to_byte|to_short|to_int|to_long|to_float|to_double|uniq|uniq_list|parent_way_angle|convert_primitive_to_string|convert_primitives_to_string|parent_osm_primitives)\\b\\(",
+			"captures": {
+				"1": {
+					"name": "entity.name.function.mapcss"
+				}
+			}
+		},
+		"validator_props": {
+			"match": "\\s+(-[a-z][a-zA-Z]+)\\b",
+			"name": "variable.other.mapcss"
+		},
+		"props": {
+			"match": "(?:repeat-image|text|dashes|color|width|line(?:cap|join)|miterlimit|font|casing|fill|default|icon|symbol|modifier|opacity|object|major|z-index)+(?:-halo)?(?:-(?:width|[hw]eight|align|offset(?:-[xy])?|spacing|phase|style|color|opacity|size|family|rotation|position|extent|threshold|background|anchor|horizontal|vertical|radius|image|points|lines|stroke|fill|shape|z-index))*",
+			"name": "support.class.mapcss"
+		},
+		"selector_placeholder": {
+			"match": "{\\b[0-9]+\\.(key|value|tag)}",
+			"captures": {
+				"1": {
+					"name": "variable.other.mapcss"
+				}
+			}
+		},
+		"hex_colors": {
+			"match": "(#(?:[a-zA-Z0-9]{6}|[a-zA-Z0-9]{3}))\\b",
+			"name": "constant.other.mapcss"
 		},
 		"pseudo-classes": {
 			"captures": {
@@ -47,6 +105,15 @@
 			},
 			"match": "(:*)(?:closed|closed2|completely_downloaded|new|connection|unconnected|tagged|area-style|righthandtraffic|clockwise|anticlockwise|unclosed_multipolygon|open_end|in-downloaded-area|selected|highlighted|modified)",
 			"name": "entity.other.attribute-name.pseudo-class.mapcss"
+		},
+		"josm-layer-names": {
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.entity.mapcss"
+				}
+			},
+			"match": "::([a-z_]+)",
+			"name": "entity.other.attribute-name.layer-name.mapcss"
 		},
 		"selector_gut": {
 			"patterns": [
@@ -84,7 +151,11 @@
 				},
 				{
 					"include": "#josm-pseudo-classes"
+				},
+				{
+					"include": "#josm-layer-names"
 				}
+
 			]
 		},
 		"selectors": {
