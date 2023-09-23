@@ -1,0 +1,307 @@
+meta
+{
+  title: "Test validation";
+  description: "Copied from JOSM website because of its rule complexity and diversity.";
+  author: "Dave Manzer & Milla Zagorski";
+  min-josm-version: 14481;  
+}
+
+
+/* Overlapping building - OSMOSE Item 0 - Class 3 building too small */ 
+
+way[building][eval(areasize() < 0.25)] {
+    throwWarning: tr("0/3: Building too small");
+    group: "0/3: Building too small";
+}
+
+/* not-connected highway/cycleway -- OSMOSE Item 1210 */
+
+/* Set connected_node */
+
+way[highway] node:connection {
+    set connected_node;
+}
+
+/* set nodes in downloaded area */
+
+way[highway] node:in-downloaded-area {
+    set downloaded;
+}
+
+/* set new_feature */
+
+way[highway][inside("US-FL")] node:new {
+    set new_feature;
+}
+
+/* Unconnected Cycleway */
+
+way[highway=cycleway]!:closed!.connected_node.downloaded >[index=1] node[noexit!=yes][amenity!=parking_entrance][amenity!=parking],
+way[highway=cycleway]!:closed!.connected_node.downloaded >[index=-1] node[noexit!=yes][amenity!=parking_entrance][amenity!=parking],
+way[highway=cycleway]!:closed!.connected_node.new_feature >[index=1] node[noexit!=yes][amenity!=parking_entrance][amenity!=parking],
+way[highway=cycleway]!:closed!.connected_node.new_feature >[index=-1] node[noexit!=yes][amenity!=parking_entrance][amenity!=parking] {
+    throwWarning: tr("Unconnected Cycleway");
+    -osmoseItemClassLevel: "1210/1/1";
+    -osmoseTags: list("highway", "cycleway", "fix:chair");
+    group: "1210 - not-connected highway/cycleway";
+}
+
+/* Unconnected Road -- Motorway to Residential */
+
+way[highway=~/^(motorway|trunk|primary|secondary|tertiary|unclassified)$/]!:closed!.connected_node.downloaded >[index=-1] node[noexit!=yes][amenity!=parking_entrance][amenity!=parking][highway!=turning_circle],
+way[highway=~/^(motorway|trunk|primary|secondary|tertiary|unclassified)$/]!:closed!.connected_node.downloaded >[index=1] node[noexit!=yes][amenity!=parking_entrance][amenity!=parking][highway!=turning_circle],
+way[highway=~/^(motorway|trunk|primary|secondary|tertiary|unclassified)$/]!:closed!.connected_node.new_feature >[index=-1] node[noexit!=yes][amenity!=parking_entrance][amenity!=parking][highway!=turning_circle],
+way[highway=~/^(motorway|trunk|primary|secondary|tertiary|unclassified)$/]!:closed!.connected_node.new_feature >[index=1] node[noexit!=yes][amenity!=parking_entrance][amenity!=parking][highway!=turning_circle] {
+    throwWarning: tr("Unconnected Highway");
+    -osmoseItemClassLevel: "1210/2/1";
+    -osmoseTags: list("highway", "fix:chair");
+    group: "1210 - not-connected highway/cycleway";
+}
+
+/* 1-member-relation -- OSMOSE Item 1200 */
+
+relation[type]::modified >[index=-1] way {
+    set member;
+}
+
+
+/* Objects Overlap -- OSMOSE item 1070 - Class 2 */
+node[/.*name/=tree] ∈ area[building] {
+  throwWarning: tr("1070/2: Tree inside {0}", "{0.key}");
+  group: "1070";
+}
+
+/* Tree type -- OSMOSE item 3120 */
+node[natural!~/tree/][!type] {
+  throwOther: tr("3120: {0} without {1} tag", "{0.tag}", "{1.key}");
+  group: "3120";
+}
+
+/* Tree species -- OSMOSE item 3120 */
+node[natural=~/tree/][!/^species:/] {
+  throwOther: tr("3120: {0} without species tag", "{0.tag}");
+  group: "3120";
+}
+
+/* Objects Intersection -- OSMOSE item 1250 Class 2 (highways/waterways) */
+way[waterway=canal] > node,
+way[waterway=drain] > node,
+way[waterway=river] > node,
+way[waterway=stream] > node {
+  set node_in_waterway;
+}
+
+way[highway][ford!=yes] > node.node_in_waterway {
+  throwOther: tr("Intersection of unrelated highway and waterway objects");
+}
+
+/* Bad link highway -- OSMOSE Item 1110 */ 
+
+way[highway*="_link"][highway!~/^(motorway_link|trunk_link)$/][eval(waylength()) > 1000] {
+    throwWarning: tr("Highway too long for a *_link");
+    -osmoseItemClassLevel: "1110/2/1";
+    -osmoseTags: list("relation", "fix:chair");
+    group: "1110 - bad *_link highway";
+}
+
+ /* Bridge to tag -- OSMOSE Item 7012 */
+
+way[bridge=yes][highway!~/^(motorway|trunk|primary|secondary)$/][!/^bridge:/][eval(waylength()) > 500],
+way[bridge=yes][railway][!/^bridge:/][eval(waylength()) > 500] {
+    throwOther: tr("Bridge structure missing");
+    -osmoseItemClassLevel: "7012/1/3";
+    -osmoseTags: list("tag", "highway", "fix:survey");
+    group: "7012 - bridge to tag";
+}
+
+/* on junction = roundabout -- OSMOSE Item 4020 */ 
+
+way[junction=roundabout][oneway] {
+    throwOther: tr("Unnecessary oneway tag");
+    -osmoseItemClassLevel: "4020/101/3";
+    -osmoseTags: list("highway", "roundabout", "fix:chair");
+    group: "4020 - on junction=roundabout";
+    fixRemove: "oneway";
+}
+
+way[junction=roundabout][ref][inside("FR,NC")] {
+    throwWarning: tr("Should not contain tag ref={0}", "{1.value}");
+    -osmoseItemClassLevel: "4020/102/2";
+    -osmoseTags: list("highway", "roundabout", "fix:chair");
+    group: "4020 - on junction=roundabout";
+    fixRemove: "ref";
+}
+
+*[highway][junction=roundabout][area][area!~/no|false/] {
+    throwWarning: tr("40201: On junction=roundabout; Unnecessary area tag");
+    group: "4020/40201";
+    fixRemove: "area";
+}
+
+/* Oneway -- OSMOSE Item 2030 */ 
+
+way[highway] node:connection {
+    set highway_node;
+}
+
+way[junction=roundabout] node.highway_node {
+    set junc_node
+}
+
+/* 
+Typically does not apply
+node[junction=roundabout] < way[highway][!oneway][eval(waylength()) < 100] {
+    throwError: tr("2030/2: Missing Oneway - Check highway entering/exiting roundabout");
+    group: tr("2030");
+}
+*/
+
+way[highway=footway] node:connection,
+way[highway=pedestrian] node:connection,
+way[highway=cycleway] node:connection,
+way[highway=path] node:connection {
+    set excluded;
+}
+
+way[highway][!junction][!oneway][eval(waylength()) < 100]  node.junc_node!.excluded {
+    throwWarning: tr("Missing Oneway");
+    -osmoseItemClassLevel: "2030/2/2";
+    -osmoseTags: list("highway", "roundabout", "fix:chair");
+    group: "2030";
+}
+
+way[cycleway=~/opposite|opposite_lane/][!oneway],
+way[cycleway=~/opposite|opposite_lane/][oneway=no] {
+    throwError: tr("Opposite cycleway without oneway");
+    -osmoseItemClassLevel: "2030/20301/1";
+    -osmoseTags: list("cycleway", "fix:survey");
+
+    assertMatch: "way cycleway=opposite";
+    assertNoMatch: "way cycleway=opposite oneway=yes";
+    assertNoMatch: "way cycleway=lane oneway=yes";
+}
+
+/* source -- OSMOSE Item 2040 -- administrative boundary does not contain tag source=* */
+way[boundary=administrative][!source]{
+    throwOther: tr("2040: Source; administrative boundary does not have source tag");
+    group: "2040";
+}
+
+
+/* Highway Roundabout OSMOSE Item 3010 */
+
+/*---------- SET CLASSES ---------- */
+
+way[highway^=primary] node:connection {
+    set primary_junc;
+}
+
+way[highway=secondary] node:connection,
+way[highway=secondary_link] node:connection {
+    set secondary_junc;
+}
+
+way[highway=tertiary] node:connection,
+way[highway=tertiary_link] node:connection {
+    set tertiary_junc;
+}
+
+/*---------- VALIDATIONS ---------- */
+
+
+/*Primary*/
+way[highway=secondary][junction=roundabout] node:connection.primary_junc,
+way[highway=tertiary][junction=roundabout] node:connection.primary_junc,
+way[highway=unclassified][junction=roundabout] node:connection.primary_junc,
+way[highway=residential][junction=roundabout] node:connection.primary_junc,
+way[highway=living_street][junction=roundabout] node:connection.primary_junc {
+    throwWarning: tr("Wrong highway on roundabout");
+    -osmoseItemClassLevel: "3010/1/2";
+    -osmoseTags: list("highway", "roundabout", "fix:chair");
+    group: "3010 - highway roundabout";
+}
+
+/*Secondary*/
+way[highway=tertiary][junction=roundabout] node:connection.secondary_junc,
+way[highway=unclassified][junction=roundabout] node:connection.secondary_junc,
+way[highway=residential][junction=roundabout] node:connection.secondary_junc,
+way[highway=living_street][junction=roundabout] node:connection.secondary_junc {
+    throwWarning: tr("Wrong highway on roundabout");
+    -osmoseItemClassLevel: "3010/1/2";
+    -osmoseTags: list("highway", "roundabout", "fix:chair");
+    group: "3010 - highway roundabout";
+}
+
+/*Tertiary*/
+way[highway=unclassified][junction=roundabout] node:connection.tertiary_junc,
+way[highway=residential][junction=roundabout] node:connection.tertiary_junc,
+way[highway=living_street][junction=roundabout] node:connection.tertiary_junc {
+    throwWarning: tr("Wrong highway on roundabout");
+    -osmoseItemClassLevel: "3010/1/2";
+    -osmoseTags: list("highway", "roundabout", "fix:chair");
+    group: "3010 - highway roundabout";
+}
+
+/*	Roundabout crossing	*/
+
+way[highway=footway] node:connection,
+way[highway=pedestrian] node:connection,
+way[highway=cycleway] node:connection,
+way[highway=path] node:connection,
+way[landuse] node:connection,
+way[natural] node:connection {
+    set excluded2;
+}
+
+way[highway][!junction] >[index=-1] node,
+way[highway][!junction] >[index=1] node {
+    set crossing;
+}
+
+way[highway][junction] >[index=-1] node,
+way[highway][junction] >[index=1] node {
+    set junc_to_junc;
+}
+
+way[highway][junction=roundabout] node:connection!.crossing!.junc_to_junc!.excluded2 {
+    throwWarning: tr("Roundabout crossing");
+    -osmoseItemClassLevel: "3010/4/2";
+    -osmoseTags: list("highway", "roundabout", "fix:chair");
+    group: "3010 - highway roundabout";
+}   
+
+/* OSMOSE 7040 - Power Lines */
+
+/* Class 1 */ 
+
+way[power] node {
+    set on_line;
+}
+
+node[power=tower]!.on_line,
+node[power=pole]!.on_line {
+    throwWarning: tr("7040/1: Lone power tower or pole");
+    group: "7040";
+}
+
+/* Class 2 */ 
+
+way[power=line] >[index=1] node[power!=generator][power!=substation]:in-downloaded-area!:connection,
+way[power=line] >[index=-1] node[power!=generator][power!=substation]:in-downloaded-area!:connection,
+way[power=line] >[index=1] node[power!=generator][power!=substation]:new!:connection,
+way[power=line] >[index=-1] node[power!=generator][power!=substation]:new!:connection  {
+    throwWarning: tr("7040/2: Unfinished power major line");
+    group: "7040";
+}
+
+/* Class 4 */
+
+way![power=line] node[power] {
+    set pwr;
+}
+
+way[power=line] node:tagged!.pwr {
+    throwWarning: tr("7040/4: Non power node on power way");
+    group: "7040";
+}
+

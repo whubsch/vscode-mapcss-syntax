@@ -16,7 +16,7 @@ canvas {
     default-lines: false;
 }
 
-// applied to ways with a tag highway=primary
+/* applied to ways with a tag highway=primary */
 way[highway=primary]     /* Matches against all ways with the highway tag set to primary */
 way[highway=~/.*ary/]    /* Matches against all ways with a highway that matches the regex ".*ary" */
 { /*  the styles */ }
@@ -29,8 +29,7 @@ node[highway="a\"b"]     /* Matches against all node with the highway tag set to
    color: rgb(1.0, 0.0, 0.0);
 }
 
-/*
-*/
+/* f */
 *[highway]       /* Matches against all every element with the highway tag set */
 *[!highway]      /* Matches against all every element with the highway tag not set (or set to no/false) */
 *.highway        /* Matches against all every element with the highway class set */

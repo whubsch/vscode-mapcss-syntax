@@ -1,0 +1,383 @@
+---
+information_for_contributors:
+  - "Please refer to: https://wiki.openstreetmap.org/wiki/MapCSS/0.2"
+  - and https://josm.openstreetmap.de/wiki/Help/Styles/MapCSSImplementation
+  - Based on https://github.com/microsoft/vscode/blob/main/extensions/scss/syntaxes/scss.tmLanguage.json
+  - and https://github.com/Microsoft/vscode/blob/main/extensions/css/syntaxes/css.tmLanguage.json
+"$schema": https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json
+name: MapCSS
+patterns:
+  - include: "#url"
+  - include: "#at_rule_import"
+  - include: "#selectors"
+  - include: "#comment_block"
+  - include: "#line"
+repository:
+  line:
+    patterns:
+      - match: "^\\s*(.+?)(:) *(.*)(;)(?!.*;)"
+        captures:
+          "1":
+            patterns:
+              - include: "#validator_functions"
+              - include: "#props"
+              - include: "#validator_props"
+              - include: "#word"
+            name: meta.line.key.mapcss
+          "2":
+            name: punctuation.separator.dict.mapcss
+          "3":
+            patterns:
+              - include: "#function_regexp"
+              - include: "#string"
+              - include: "#comparison_operators"
+              - include: "#boolean"
+              - include: "#number"
+              - include: "#hex_colors"
+              - include: "#expressions"
+              - include: "#word"
+              - include: "#ternary"
+              - include: "#commas"
+            name: meta.line.value.mapcss
+          "4":
+            name: punctuation.terminator.mapcss
+      - match: "^\\s+(set)\\s+(\\.?)([\\w]+)(;)?"
+        captures:
+          "1":
+            name: entity.name.function.mapcss
+          "2":
+            name: punctuation.separator.period.mapcss
+          "3":
+            name: variable.other.set.mapcss
+          "4":
+            name: punctuation.terminator.mapcss
+  selectors:
+    patterns:
+      - include: "#tag_wildcard"
+      - include: "#tag_types"
+      - include: "#selector_gut"
+      - include: "#comparison_operators"
+      - match: "(\\.)([a-zA-Z0-9_]+)"
+        captures:
+          "1":
+            name: punctuation.separator.period.mapcss
+          "2":
+            name: entity.other.attribute-name.class.mapcss
+      - include: "#selector_not"
+  selector_gut:
+    patterns:
+      - include: "#comment-block"
+      - include: "#commas"
+      - include: "#zoom"
+      - match: "<|>"
+        name: keyword.operator.family.mapcss
+      - name: meta.attribute-selector.mapcss
+        begin: "(\\[)"
+        beginCaptures:
+          "1":
+            name: punctuation.definition.entity.begin.bracket.square.mapcss
+        end: "(\\??!?)(\\])"
+        endCaptures:
+          "1":
+            name: keyword.operator.truthy.mapcss
+          "2":
+            name: punctuation.definition.entity.end.bracket.square.mapcss
+        patterns:
+          - include: "#selector_regexp"
+          - include: "#selector_regexp_naked"
+          - include: "#string"
+          - include: "#number"
+          - include: "#expressions"
+          - include: "#word"
+          - include: "#comparison_operators"
+          - include: "#selector_not"
+      - include: "#pseudo-classes"
+      - include: "#josm-pseudo-classes"
+      - include: "#josm-layer-names"
+  selector_regexp:
+    match: ([=!]~)(\/)((?:[^"\\]*?(?:\\.[^"\\]*)*))(\/)
+    captures:
+      "1":
+        patterns:
+          - include: "#comparison_operators"
+      "2":
+        name: punctuation.string.slash.begin.mapcss
+      "3":
+        patterns:
+          - include: "#regexp"
+      "4":
+        name: punctuation.string.slash.end.mapcss
+  selector_regexp_naked:
+    match: (\/)((?:[^"\\]*(?:\\.[^"\\]*)*))(\/)
+    captures:
+      "1":
+        name: punctuation.string.slash.begin.mapcss
+      "2":
+        patterns:
+          - include: "#regexp"
+      "3":
+        name: punctuation.string.slash.end.mapcss
+  selector_placeholder:
+    match: "(\\{)([0-9]+)(?:(\\.)(key|value|tag))?(\\})"
+    captures:
+      "1":
+        patterns:
+          - include: "#brackets"
+      "2":
+        patterns:
+          - include: "#number"
+      "3":
+        name: punctuation.separator.period.mapcss
+      "4":
+        name: variable.other.selector.mapcss
+      "5":
+        patterns:
+          - include: "#brackets"
+  selector_not:
+    match: "!"
+    name: keyword.operator.not.mapcss
+  string:
+    match: (["'])((?:(?=(\\?))\3.)*?)(\1)
+    captures:
+      "1":
+        name: punctuation.string.double.start.mapcss
+      "2":
+        name: string.quoted.double.mapcss
+        patterns:
+          - include: "#escapes"
+          - include: "#selector_placeholder"
+          - include: "#brackets"
+      "4":
+        name: punctuation.string.double.end.mapcss
+  ternary:
+    match: "\\s(:|\\?)\\s"
+    name: keyword.operator.ternary.mapcss
+  zoom:
+    match: "(\\|)(z[0-9-]+)"
+    captures:
+      "1":
+        name: punctuation.separator.bar.mapcss
+      "2":
+        name: entity.name.function.zoom.mapcss
+  tag_wildcard:
+    match: "(\\*)"
+    captures:
+      "1":
+        name: entity.name.tag.wildcard.mapcss
+  tag_types:
+    match: "\\b(node|way|relation|area|line|canvas|meta)\\b(!)?"
+    captures:
+      "1":
+        name: entity.name.tag.mapcss
+      "2":
+        name: keyword.operator.not.mapcss
+  validator_functions:
+    match: "\\b(group|throw(?:Error|Warning|Other)|fix(?:Add|Remove|ChangeKey|DeleteObject)|suggestAlternative|assert(?:No)?Match)"
+    captures:
+      "1":
+        name: support.function.mapcss
+  expressions:
+    match: "\\b(eval|inside|cond|list|get|split|prop|is_prop_set|tag(?:_regex)?|parent_tags?|has_tag_key|rgb|hsb_color|red|alpha|length|count(?:_roles)?|length|any|concat|(?:join|trim|uniq|sort)(?:_list)?|upper|lower|title|JOSM_(?:search|pref)|tr|regexp_(?:test|match)|substring|replace|osm_id|osm_user_name|osm_user_id|osm_version|osm_changeset_id|osm_timestamp|parent_osm_id|URL_(?:encode|decode)|XML_encode|CRC32_checksum|is_right_hand_traffic|number_of_tags|print(?:ln)?|setting|degree_to_radians|cardinal_to_radians|waylength|areasize|at|is_similar|gpx_distance|to_(?:boolean|byte|short|int|long|float|double)|parent_way_angle|convert_primitives?_to_string|parent_osm_primitives)\\b\\("
+    captures:
+      "1":
+        name: entity.name.function.mapcss
+  validator_props:
+    match: "\\s+(-[a-z][a-zA-Z]+)\\b"
+    name: variable.other.props.mapcss
+  props:
+    match: "(?:repeat-image|text|dashes|color|width|line(?:cap|join)|miterlimit|font|casing|fill|default|icon|symbol|modifier|opacity|object|major|z-index)+(?:-halo)?(?:-(?:width|[hw]eight|align|offset(?:-[xy])?|spacing|phase|style|color|opacity|size|family|rotation|position|extent|threshold|background|anchor|horizontal|vertical|radius|image|points|lines|stroke|fill|shape|z-index|dashes|linecap))*"
+    name: support.class.mapcss
+  boolean:
+    match: "(true|false)"
+    name: keyword.other.boolean.mapcss
+  number:
+    match: "[-+]*[0-9.]+"
+    name: constant.numeric.mapcss
+  word:
+    match: "[a-zA-Z-_]+"
+    name: variable.parameter.word.mapcss
+  hex_colors:
+    match: "(#(?:[a-zA-Z0-9]{6}|[a-zA-Z0-9]{3}))\\b"
+    name: constant.other.hex.mapcss
+  pseudo-classes:
+    match: "(:)(active|hover)"
+    name: meta.pseudo-class.mapcss
+    captures:
+      "1":
+        name: punctuation.definition.entity.mapcss
+      "2":
+        name: entity.other.attribute-name.pseudo-class.mapcss
+  josm-pseudo-classes:
+    match: "(:)((?:un)?closed2?(?:_polygon)?|completely_downloaded|new|connection|unconnected|tagged|area-style|righthandtraffic|(?:anti)?clockwise|open_end|in-downloaded-area|selected|highlighted|modified)"
+    name: meta.pseudo-class.josm.mapcss
+    captures:
+      "1":
+        name: punctuation.definition.entity.mapcss
+      "2":
+        name: entity.other.attribute-name.pseudo-class.josm.mapcss
+  josm-layer-names:
+    match: "(::)([a-z0-9_]+)"
+    name: meta.pseudo-class.layer.mapcss
+    captures:
+      "1":
+        name: punctuation.definition.entity.mapcss
+      "2":
+        name: entity.other.attribute-name.josm.mapcss
+  function_regexp:
+    match: (regexp_(?:match|test))\("(.*?)",
+    captures:
+      "1":
+        name: entity.name.function.mapcss
+      "2":
+        patterns:
+          - include: "#regexp"
+  comparison_operators:
+    match: "([!<>~$^*]?([=<>])([~])?)|!~|⧉|∈|⊆|⊇|⊈|⊉"
+    name: keyword.operator.comparison.mapcss
+  commas:
+    match: ","
+    name: punctuation.separator.list.comma.mapcss
+  comment_block:
+    name: comment.block.mapcss
+    begin: "/\\*"
+    beginCaptures:
+      "0":
+        name: punctuation.definition.comment.mapcss
+    end: "\\*/"
+    endCaptures:
+      "0":
+        name: punctuation.definition.comment.mapcss
+  at_rule_import:
+    name: meta.at-rule.import.mapcss
+    begin: "\\s*((@)import\\b)\\s*"
+    captures:
+      "1":
+        name: keyword.control.at-rule.import.mapcss
+      "2":
+        name: punctuation.definition.keyword.mapcss
+    end: "\\s*((?=;)|(?=}))"
+    patterns:
+      - include: "#url"
+  escapes:
+    patterns:
+      - match: "\\\\[0-9a-fA-F]{1,6}"
+        name: constant.character.escape.codepoint.mapcss
+      - begin: "\\\\$\\s*"
+        end: "^(?<!\\G)"
+        name: constant.character.escape.newline.mapcss
+      - match: "\\\\."
+        name: constant.character.escape.mapcss
+  brackets:
+    patterns:
+      - match: "\\{"
+        name: punctuation.definition.brace.start.mapcss
+      - match: "\\}"
+        name: punctuation.definition.brace.end.mapcss
+  url:
+    begin: "(?i)(?<![\\w@-])(url)(\\()"
+    beginCaptures:
+      "1":
+        name: support.function.url.mapcss
+      "2":
+        name: punctuation.section.function.begin.bracket.round.mapcss
+    end: "\\)"
+    endCaptures:
+      "0":
+        name: punctuation.section.function.end.bracket.round.mapcss
+    name: meta.function.url.mapcss
+    patterns:
+      - match: '[^''")\s]+'
+        name: variable.parameter.url.mapcss
+      - include: "#string"
+      - include: "#comment-block"
+  regexp:
+    comment: Taken from other TextMate sources
+    patterns:
+      - name: keyword.control.anchor.regexp
+        match: "\\\\[bB]|\\^|\\$"
+      - match: "\\\\[1-9]\\d*|\\\\k<([a-zA-Z_$][\\w$]*)>"
+        captures:
+          "0":
+            name: keyword.other.back-reference.regexp
+          "1":
+            name: variable.other.regexp
+      - name: keyword.operator.quantifier.regexp
+        match: "[?+*]|\\{(\\d+,\\d+|\\d+,|,\\d+|\\d+)\\}\\??"
+      - name: keyword.operator.or.regexp
+        match: "\\|"
+      - name: meta.group.assertion.regexp
+        begin: "(\\()((\\?=)|(\\?!)|(\\?<=)|(\\?<!))"
+        beginCaptures:
+          "1":
+            name: punctuation.definition.group.regexp
+          "2":
+            name: punctuation.definition.group.assertion.regexp
+          "3":
+            name: meta.assertion.look-ahead.regexp
+          "4":
+            name: meta.assertion.negative-look-ahead.regexp
+          "5":
+            name: meta.assertion.look-behind.regexp
+          "6":
+            name: meta.assertion.negative-look-behind.regexp
+        end: "(\\))"
+        endCaptures:
+          "1":
+            name: punctuation.definition.group.regexp
+        patterns:
+          - include: "#regexp"
+      - name: meta.group.regexp
+        begin: "\\((?:(\\?:)|(?:\\?<([a-zA-Z_$][\\w$]*)>))?"
+        beginCaptures:
+          "0":
+            name: punctuation.definition.group.regexp
+          "1":
+            name: punctuation.definition.group.no-capture.regexp
+          "2":
+            name: variable.other.regexp
+        end: "\\)"
+        endCaptures:
+          "0":
+            name: punctuation.definition.group.regexp
+        patterns:
+          - include: "#regexp"
+      - name: constant.other.character-class.set.regexp
+        begin: "(\\[)(\\^)?"
+        beginCaptures:
+          "1":
+            name: punctuation.definition.character-class.regexp
+          "2":
+            name: keyword.operator.negation.regexp
+        end: "(\\])"
+        endCaptures:
+          "1":
+            name: punctuation.definition.character-class.regexp
+        patterns:
+          - name: constant.other.character-class.range.regexp
+            match: "(?:.|(\\\\(?:[0-7]{3}|x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}))|(\\\\c[A-Z])|(\\\\.))\\-(?:[^\\]\\\\]|(\\\\(?:[0-7]{3}|x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}))|(\\\\c[A-Z])|(\\\\.))"
+            captures:
+              "1":
+                name: constant.character.numeric.regexp
+              "2":
+                name: constant.character.control.regexp
+              "3":
+                name: constant.character.escape.backslash.regexp
+              "4":
+                name: constant.character.numeric.regexp
+              "5":
+                name: constant.character.control.regexp
+              "6":
+                name: constant.character.escape.backslash.regexp
+          - include: "#regex-character-class"
+      - include: "#regex-character-class"
+  regex-character-class:
+    patterns:
+      - name: constant.other.character-class.regexp
+        match: "\\\\[wWsSdDtrnvf]|\\."
+      - name: constant.character.numeric.regexp
+        match: "\\\\([0-7]{3}|x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4})"
+      - name: constant.character.control.regexp
+        match: "\\\\c[A-Z]"
+      - name: constant.character.escape.backslash.regexp
+        match: "\\\\."
+scopeName: source.mapcss
