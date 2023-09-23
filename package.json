@@ -4,6 +4,7 @@
   "description": "Syntax highlighting for MapCSS",
   "version": "0.1.0",
   "author": "whammo",
+  "publisher": "whammo",
   "license": "MIT",
   "repository": "https://github.com/whubsch/vscode-mapcss-syntax",
   "keywords": [
