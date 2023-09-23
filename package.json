@@ -6,6 +6,14 @@
   "author": "whammo",
   "license": "MIT",
   "repository": "https://github.com/whubsch/vscode-mapcss-syntax",
+  "keywords": [
+    "syntax",
+    "syntax highlighter",
+    "openstreetmap",
+    "josm",
+    "mapcss",
+    "map rendering"
+  ],
   "engines": {
     "vscode": "^1.74.0"
   },

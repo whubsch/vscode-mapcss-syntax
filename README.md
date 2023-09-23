@@ -43,7 +43,7 @@ Feel free to fork the repository, submit pull requests, or open issues with any 
 
 ## License
 
-This extension is licensed under the [MIT License](LICENSE.md).
+This extension is licensed under the [MIT License](LICENSE.MD).
 
 ## Acknowledgments
 
